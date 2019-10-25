@@ -27,13 +27,7 @@ def getFolder(yearfold, monthfold, dayfold):
         foldersM.append(google_drive_util.create_subfolder(
             foldersY[-1], monthfold))
 
-    foldersD = google_drive_util.find_folders(dayfold)
-
-    if len(foldersD) == 0 or foldersD[-1].get('parents')[0].get('id') != foldersM[-1].get('id'):
-        foldersD.append(google_drive_util.create_subfolder(
-            foldersM[-1], dayfold))
-
-    return foldersD[-1]
+    return foldersM[-1]
 
 
 def uploadToDrive(fname, yearfold, monthfold, dayfold):
