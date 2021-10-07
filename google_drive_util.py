@@ -36,34 +36,42 @@ def login():
 
 
 def root_files():
-    file_list = drive.ListFile(
-        {'q': "'root' in parents and trashed=false"}).GetList()
+    file_list = drive.ListFile({"q": "'root' in parents and trashed=false"}).GetList()
     return file_list
 
 
 def find_folders(fldname):
-    file_list = drive.ListFile({
-        'q': "title='{}' and mimeType contains 'application/vnd.google-apps.folder' and trashed=false".format(fldname)
-    }).GetList()
+    file_list = drive.ListFile(
+        {
+            "q": "title='{}' and mimeType contains 'application/vnd.google-apps.folder' and trashed=false".format(
+                fldname
+            )
+        }
+    ).GetList()
     return file_list
 
 
 def create_subfolder(folder, sfldname):
-    new_folder = drive.CreateFile({'title': '{}'.format(sfldname),
-                                   'mimeType': 'application/vnd.google-apps.folder'})
+    new_folder = drive.CreateFile(
+        {
+            "title": "{}".format(sfldname),
+            "mimeType": "application/vnd.google-apps.folder",
+        }
+    )
     if folder is not None:
-        new_folder['parents'] = [{u'id': folder['id']}]
+        new_folder["parents"] = [{u"id": folder["id"]}]
     new_folder.Upload()
     return new_folder
 
 
-def list_files_with_ext(ext, dir='./'):
+def list_files_with_ext(ext, dir="./"):
     return sorted(filter(lambda f: f[-len(ext):] == ext, os.listdir(dir)))
 
 
 def upload_files_to_folder(fnames, folder):
     for fname in fnames:
-        nfile = drive.CreateFile({'title': os.path.basename(fname),
-                                  'parents': [{u'id': folder['id']}]})
+        nfile = drive.CreateFile(
+            {"title": os.path.basename(fname), "parents": [{u"id": folder["id"]}]}
+        )
         nfile.SetContentFile(fname)
         nfile.Upload()
