@@ -1,5 +1,3 @@
-# This is a file found on github which I modified a little
-
 # Simple Python module to upload files to Google Drive
 # Needs a file 'client_secrets.json' in the directory
 # The file can be obtained from https://console.developers.google.com/
@@ -7,8 +5,8 @@
 
 
 import os
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
+from pydrive2.auth import GoogleAuth
+from pydrive2.drive import GoogleDrive
 
 
 def login():
@@ -33,7 +31,6 @@ def login():
     # Save the current credentials to a file
     gauth.SaveCredentialsFile("mycreds.txt")
 
-    # gauth.LocalWebserverAuth() # Creates local webserver and auto handles authentication
     # Create GoogleDrive instance with authenticated GoogleAuth instance
     drive = GoogleDrive(gauth)
 
@@ -41,9 +38,6 @@ def login():
 def root_files():
     file_list = drive.ListFile(
         {'q': "'root' in parents and trashed=false"}).GetList()
-    # Auto-iterate through all files in the root folder.
-    # for file1 in file_list:
-    #    print 'title: %s, id: %s' % (file1['title'], file1['id'])
     return file_list
 
 
@@ -68,10 +62,6 @@ def list_files_with_ext(ext, dir='./'):
 
 
 def upload_files_to_folder(fnames, folder):
-    # file1 = drive.CreateFile({'title': 'Hello.txt'}) # Create GoogleDriveFile instance with title 'Hello.txt'
-    # file1.Upload() # Upload it
-    # print 'title: %s, id: %s' % (file1['title'], file1['id']) # title: Hello.txt, id: {{FILE_ID}}
-
     for fname in fnames:
         nfile = drive.CreateFile({'title': os.path.basename(fname),
                                   'parents': [{u'id': folder['id']}]})
