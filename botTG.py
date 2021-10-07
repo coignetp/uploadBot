@@ -62,32 +62,31 @@ def handle(bot, msg):
         os.remove(filename)
 
 
+
 if __name__ == '__main__':
-    configFilename = 'config.conf'
-
-    with open(configFilename) as jsonFile:
-        # Loads the configuration for the bot to work
-        config = json.load(jsonFile)
-
-        TOKEN = config["tg_token"]
-        FOLDER = config["ggd_folder"]
-
-        jsonFile.close()
-
+    with open('config.json') as jsonfile:
+        config = json.load(jsonfile)
         google_drive_util.login()
+        TOKEN = config['tg_token']
+        FOLDER = config['ggd_folder']
         MainFolder = google_drive_util.find_folders(FOLDER)[-1]
 
         # The bot is ready to start
         bot = telegram.Bot(TOKEN)
         print('Listening ...')
 
+        update_id = 0
+
         while 1:
             time.sleep(10)
             # Get all the messages read since last time
             try:
-                updates = bot.get_updates(limit=1000, timeout=10, allowed_updates=['message'])
+                updates = bot.get_updates(offset=update_id, limit=1000, timeout=10, allowed_updates=['message'])
+                print('Found {} update(s)'.format(len(updates)))
 
                 for msg in updates:
                     handle(bot, msg.message)
+                    update_id = msg.update_id + 1
+
             except Exception as e:
                 print(e)
