@@ -1,2 +1,2 @@
 PyDrive2==1.10.0
-telepot==12.5
+python-telegram-bot==13.7

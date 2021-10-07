@@ -106,4 +106,4 @@ venv.bak/
 # token and credentials
 mycreds.txt
 client_secrets.json
-config.conf
+config.json
