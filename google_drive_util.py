@@ -3,75 +3,68 @@
 # The file can be obtained from https://console.developers.google.com/
 # under APIs&Auth/Credentials/Create Client ID for native application
 
-
+import logging
 import os
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 
 
-def login():
-    global gauth, drive
-    gauth = GoogleAuth()
+class Drive(object):
+    def __init__(self) -> None:
+        self.login()
+        self.logger = logging.getLogger(__name__)
 
-    gauth.LoadCredentialsFile("mycreds.txt")
-    print("Loading credentials")
+    def login(self) -> None:
+        self.gauth = GoogleAuth()
 
-    if gauth.credentials is None:
-        print("First")
-        # Authenticate if they're not there
-        gauth.LocalWebserverAuth()
-    elif gauth.access_token_expired:
-        print("Second")
-        # Refresh them if expired
-        gauth.Refresh()
-    else:
-        print("Third")
-        # Initialize the saved creds
-        gauth.Authorize()
-    # Save the current credentials to a file
-    gauth.SaveCredentialsFile("mycreds.txt")
+        self.gauth.LoadCredentialsFile("mycreds.txt")
+        self.logger.debug("Loading credentials")
 
-    # Create GoogleDrive instance with authenticated GoogleAuth instance
-    drive = GoogleDrive(gauth)
+        if self.gauth.credentials is None:
+            self.logger.debug("First authentication")
+            # Authenticate if they're not there
+            self.gauth.LocalWebserverAuth()
+        elif self.gauth.access_token_expired:
+            self.logger.debug("Token has expired, refreshing")
+            # Refresh them if expired
+            self.gauth.Refresh()
+        else:
+            self.logger.debug("Connected")
+            # Initialize the saved creds
+            self.gauth.Authorize()
+        # Save the current credentials to a file
+        self.gauth.SaveCredentialsFile("mycreds.txt")
 
+        # Create GoogleDrive instance with authenticated GoogleAuth instance
+        self.drive = GoogleDrive(self.gauth)
 
-def root_files():
-    file_list = drive.ListFile({"q": "'root' in parents and trashed=false"}).GetList()
-    return file_list
+    def find_folders(self, folder_name):
+        file_list = self.drive.ListFile(
+            {
+                "q": "title='{}' and mimeType contains 'application/vnd.google-apps.folder' and trashed=false".format(
+                    folder_name
+                )
+            }
+        ).GetList()
+        return file_list
 
-
-def find_folders(fldname):
-    file_list = drive.ListFile(
-        {
-            "q": "title='{}' and mimeType contains 'application/vnd.google-apps.folder' and trashed=false".format(
-                fldname
-            )
-        }
-    ).GetList()
-    return file_list
-
-
-def create_subfolder(folder, sfldname):
-    new_folder = drive.CreateFile(
-        {
-            "title": "{}".format(sfldname),
-            "mimeType": "application/vnd.google-apps.folder",
-        }
-    )
-    if folder is not None:
-        new_folder["parents"] = [{u"id": folder["id"]}]
-    new_folder.Upload()
-    return new_folder
-
-
-def list_files_with_ext(ext, dir="./"):
-    return sorted(filter(lambda f: f[-len(ext):] == ext, os.listdir(dir)))
-
-
-def upload_files_to_folder(fnames, folder):
-    for fname in fnames:
-        nfile = drive.CreateFile(
-            {"title": os.path.basename(fname), "parents": [{u"id": folder["id"]}]}
+    def create_subfolder(self, folder, sub_folder_name):
+        new_folder = self.drive.CreateFile(
+            {
+                "title": "{}".format(sub_folder_name),
+                "mimeType": "application/vnd.google-apps.folder",
+            }
         )
-        nfile.SetContentFile(fname)
-        nfile.Upload()
+        if folder is not None:
+            new_folder["parents"] = [{u"id": folder["id"]}]
+        new_folder.Upload()
+        self.logger.debug("Folder created {}/{}".format(folder, sub_folder_name))
+        return new_folder
+
+    def upload_files_to_folder(self, fnames, folder):
+        for fname in fnames:
+            nfile = self.drive.CreateFile(
+                {"title": os.path.basename(fname), "parents": [{u"id": folder["id"]}]}
+            )
+            nfile.SetContentFile(fname)
+            nfile.Upload()
