@@ -49,13 +49,17 @@ def handle(bot, msg):
 
     try:
         # Try photo first
-        file = bot.getFile(msg.photo[0].file_id)
-        print("Found a photo")
+        best_id = 0
+        for i in range(len(msg.photo)):
+            if msg.photo[best_id].file_size < msg.photo[i].file_size:
+                best_id = i
+        file = bot.getFile(msg.photo[best_id].file_id)
+        print(f"Found a photo: {file.file_size}")
     except Exception:
         try:
             # Video second
             file = bot.getFile(msg.video.file_id)
-            print("Found a video")
+            print(f"Found a video: {file.file_size}")
         except Exception:
             return
 
