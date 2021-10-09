@@ -10,11 +10,11 @@ from pydrive2.drive import GoogleDrive
 
 
 class Drive(object):
-    def __init__(self) -> None:
-        self.login()
+    def __init__(self):
         self.logger = logging.getLogger(__name__)
+        self.login()
 
-    def login(self) -> None:
+    def login(self):
         self.gauth = GoogleAuth()
 
         self.gauth.LoadCredentialsFile("mycreds.txt")
