@@ -1,2 +1,2 @@
-PyDrive2==1.10.0
-python-telegram-bot==13.7
+PyDrive2==1.14.0
+python-telegram-bot==13.14
