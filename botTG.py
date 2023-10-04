@@ -25,6 +25,20 @@ monthNames = [
 
 logger = logging.getLogger(__name__)
 
+def getFolder(drive, yearfold, monthfold):
+    foldersY = drive.find_folders(yearfold)
+
+    if len(foldersY) == 0:
+        foldersY.append(drive.create_subfolder(MainFolder, yearfold))
+
+    foldersM = drive.find_folders(monthfold)
+
+    for f in foldersM:
+        if f.get('parents')[0].get('id') == foldersY[-1].get('id'):
+            return f
+
+    return drive.create_subfolder(foldersY[-1], monthfold)
+
 def handle(drive, bot, msg):
     file = None
 
@@ -54,7 +68,7 @@ def handle(drive, bot, msg):
         year_folder = "annee_" + str(now.year)
         month_folder = monthNames[now.month - 1]
         
-        drive.upload_files_to_folder([filename], year_folder, month_folder)
+        drive.upload_files_to_folder([filename], getFolder(drive, year_folder, month_folder))
 
         os.remove(filename)
 
