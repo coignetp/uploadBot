@@ -4,12 +4,11 @@ import logging
 import datetime
 import os
 import json
+import google_drive_util  # Import the Drive class from the previous refactored code
 
-import google_drive_util
-
-# For french version. Can be changed.
+# For the French version. Can be changed.
 monthNames = [
-    "01 -Janvier",
+    "01 - Janvier",
     "02 - Fevrier",
     "03 - Mars",
     "04 - Avril",
@@ -23,10 +22,8 @@ monthNames = [
     "12 - Decembre",
     "Inconnu",
 ]
-MainFolder = []
 
 logger = logging.getLogger(__name__)
-
 
 def getFolder(drive, yearfold, monthfold):
     foldersY = drive.find_folders(yearfold)
@@ -41,12 +38,6 @@ def getFolder(drive, yearfold, monthfold):
             return f
 
     return drive.create_subfolder(foldersY[-1], monthfold)
-
-
-def uploadToDrive(drive, fname, yearfold, monthfold):
-    folder = getFolder(drive, yearfold, monthfold)
-    drive.upload_files_to_folder([fname], folder)
-
 
 def handle(drive, bot, msg):
     file = None
@@ -74,10 +65,12 @@ def handle(drive, bot, msg):
 
         file.download(filename)
 
-        uploadToDrive(drive, filename, "annee_" + str(now.year), monthNames[now.month - 1])
+        year_folder = "annee_" + str(now.year)
+        month_folder = monthNames[now.month - 1]
+        
+        drive.upload_files_to_folder([filename], getFolder(drive, year_folder, month_folder))
 
         os.remove(filename)
-
 
 if __name__ == "__main__":
     logger.setLevel(logging.DEBUG)
@@ -88,7 +81,6 @@ if __name__ == "__main__":
 
         TOKEN = config["tg_token"]
         FOLDER = config["ggd_folder"]
-        MainFolder = drive.find_folders(FOLDER)[-1]
 
         # The bot is ready to start
         bot = telegram.Bot(TOKEN)
@@ -98,7 +90,7 @@ if __name__ == "__main__":
 
         while 1:
             time.sleep(10)
-            # Get all the messages read since last time
+            # Get all the messages read since the last time
             try:
                 updates = bot.get_updates(
                     offset=update_id,
