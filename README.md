@@ -15,9 +15,11 @@ A telegram bot in python which upload the photos on Google Drive in a group conv
 If you want your bot to upload every pictures on a group conversation (not only those sent to it), turn off the privacy mode with talking to **@botfather**
 
 ## Link it with google drive
-* Follow https://developers.google.com/drive/api/v3/quickstart/python from step 1.a to 1.g
+* Follow https://developers.google.com/drive/api/v3/quickstart/python steps to create a credential file
 * Rename the downloaded file *client_secrets.json* and put it at the root folder
 * Change *ggd_folder* in the *config.json* and give the folder where you want to put every photos
+
+** WARNING **: do not update the template file *config.json.template*, as you risk to commit your secret
 
 ## Start
 Now you can start the bot with `python3 botTG.py`.
